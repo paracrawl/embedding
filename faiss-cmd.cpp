@@ -176,10 +176,18 @@ std::string AutoTuning(faiss::Index * index,
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
-/*
-void Search(const std::string &selected_params)
+
+void Search(faiss::Index * index,
+            const std::pair<size_t, faiss::Index::idx_t*> &gtParams,
+            const std::pair<size_t, float *> &loadQueriesParams,
+            const std::string &selected_params)
 {
   faiss::ParameterSpace params;
+  const size_t &k = gtParams.first;
+  const faiss::Index::idx_t *gt = gtParams.second; 
+  const size_t &nq = loadQueriesParams.first;
+  float *xq = loadQueriesParams.second;
+
 
   //printf ("[%.3f s] Setting parameter configuration \"%s\" on index\n",
   //        elapsed() - t0, selected_params.c_str());
@@ -214,7 +222,7 @@ void Search(const std::string &selected_params)
   printf("R@100 = %.4f\n", n_100 / float(nq));
 
 }
-*/
+
 ///////////////////////////////////////////////////////////////////////////////////////
 
 int main()
@@ -235,6 +243,16 @@ int main()
   std::pair<size_t, faiss::Index::idx_t*> gtParams = LoadGroundTruths(loadQueriesParams.first);
 
   std::string selected_params = AutoTuning(index, gtParams, loadQueriesParams);
+
+  Search(index, gtParams, loadQueriesParams, selected_params);
+
+   // delete
+  const faiss::Index::idx_t *gt = gtParams.second; 
+  float *xq = loadQueriesParams.second;
+
+  delete [] xq;
+  delete [] gt;
+  delete index;
 
   cerr << "Finished." << endl;
   return 0;
