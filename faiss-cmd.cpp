@@ -44,11 +44,15 @@ float * fvecs_read (const char *fname,
 }
 
 
-void Load(size_t &d)
+const char *Load(size_t &d)
 {
   size_t nt;
   float *xt = fvecs_read("sift1M/sift_learn.fvecs", &d, &nt);
 
+  const char *index_key;
+  faiss::index_factory(d, index_key);
+
+  return index_key;
 }
 
 int main()
@@ -60,7 +64,7 @@ int main()
 
   size_t d;
 
-  Load(d);
+  index_key = Load(d);
 
   cerr << "Finished." << endl;
   return 0;
