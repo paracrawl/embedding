@@ -127,12 +127,13 @@ std::pair<size_t, faiss::Index::idx_t*> LoadGroundTruths(const size_t &nq)
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-std::string AutoTuning(const size_t &nq, faiss::Index * index,
+std::string AutoTuning(faiss::Index * index,
                 const std::pair<size_t, faiss::Index::idx_t*> &gtParams,
                 const std::pair<size_t, float *> &loadQueriesParams)
 {
   const size_t &k = gtParams.first;
   const faiss::Index::idx_t *gt = gtParams.second; 
+  const size_t &nq = loadQueriesParams.first;
   float *xq = loadQueriesParams.second;
 
   std::string selected_params;
@@ -174,8 +175,9 @@ std::string AutoTuning(const size_t &nq, faiss::Index * index,
   return selected_params;
 }
 
+///////////////////////////////////////////////////////////////////////////////////////
 /*
-void Search()
+void Search(const std::string &selected_params)
 {
   faiss::ParameterSpace params;
 
@@ -232,7 +234,7 @@ int main()
   size_t k; // nb of results per query in the GT
   std::pair<size_t, faiss::Index::idx_t*> gtParams = LoadGroundTruths(loadQueriesParams.first);
 
-  std::string selected_params = AutoTuning(loadQueriesParams.first, index, gtParams, loadQueriesParams);
+  std::string selected_params = AutoTuning(index, gtParams, loadQueriesParams);
 
   cerr << "Finished." << endl;
   return 0;
