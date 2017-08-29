@@ -102,9 +102,10 @@ size_t LoadQueries(const size_t &d)
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
-void LoadGroundTruths(const size_t &nq)
+size_t LoadGroundTruths(const size_t &nq)
 {
   size_t k; // nb of results per query in the GT
+
   faiss::Index::idx_t *gt;  // nq * k matrix of ground-truth nearest-neighbors
 
   //printf ("[%.3f s] Loading ground truth for %ld queries\n",
@@ -120,6 +121,47 @@ void LoadGroundTruths(const size_t &nq)
       gt[i] = gt_int[i];
   }
   delete [] gt_int;
+
+  return k;
+}
+
+///////////////////////////////////////////////////////////////////////////////////////
+void AutoTuning(const size_t &nq, const size_t &k)
+{
+  //printf ("[%.3f s] Preparing auto-tune criterion 1-recall at 1 "
+  //        "criterion, with k=%ld nq=%ld\n", elapsed() - t0, k, nq);
+
+  faiss::OneRecallAtRCriterion crit(nq, 1);
+  crit.set_groundtruth (k, nullptr, gt);
+  crit.nnn = k; // by default, the criterion will request only 1 NN
+
+  //printf ("[%.3f s] Preparing auto-tune parameters\n", elapsed() - t0);
+
+  faiss::ParameterSpace params;
+  params.initialize(index);
+
+  //printf ("[%.3f s] Auto-tuning over %ld parameters (%ld combinations)\n",
+  //        elapsed() - t0, params.parameter_ranges.size(),
+  //        params.n_combinations());
+
+  faiss::OperatingPoints ops;
+  params.explore (index, nq, xq, crit, &ops);
+
+  //printf ("[%.3f s] Found the following operating points: \n",
+  //        elapsed() - t0);
+
+  ops.display ();
+
+  // keep the first parameter that obtains > 0.5 1-recall@1
+  for (int i = 0; i < ops.optimal_pts.size(); i++) {
+      if (ops.optimal_pts[i].perf > 0.5) {
+          selected_params = ops.optimal_pts[i].key;
+          break;
+      }
+  }
+  assert (selected_params.size() >= 0 ||
+          !"could not find good enough op point");
+
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
@@ -137,6 +179,11 @@ int main()
   LoadDb(d, index);
   
   size_t nq = LoadQueries(d);
+
+  size_t k; // nb of results per query in the GT
+  k = LoadGroundTruths(nq);
+
+  AutoTuning(nq);
 
   cerr << "Finished." << endl;
   return 0;
