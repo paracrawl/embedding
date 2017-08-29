@@ -126,11 +126,16 @@ std::pair<size_t, faiss::Index::idx_t*> LoadGroundTruths(const size_t &nq)
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
-/*
-void AutoTuning(const size_t &nq, const std::pair<size_t, faiss::Index::idx_t*> &gtParams)
+
+void AutoTuning(const size_t &nq, faiss::Index * index,
+                const std::pair<size_t, faiss::Index::idx_t*> &gtParams,
+                const std::pair<size_t, float *> &loadQueriesParams)
 {
   const size_t &k = gtParams.first;
   const faiss::Index::idx_t *gt = gtParams.second; 
+  float *xq = loadQueriesParams.second;
+
+  std::string selected_params;
 
   //printf ("[%.3f s] Preparing auto-tune criterion 1-recall at 1 "
   //        "criterion, with k=%ld nq=%ld\n", elapsed() - t0, k, nq);
@@ -167,7 +172,7 @@ void AutoTuning(const size_t &nq, const std::pair<size_t, faiss::Index::idx_t*> 
           !"could not find good enough op point");
 
 }
-*/
+
 ///////////////////////////////////////////////////////////////////////////////////////
 
 int main()
@@ -182,10 +187,10 @@ int main()
   faiss::Index *index = LoadData(d, index_key);
   LoadDb(d, index);
   
-  std::pair<size_t, float *> loadParams = LoadQueries(d);
+  std::pair<size_t, float *> loadQueriesParams = LoadQueries(d);
 
   size_t k; // nb of results per query in the GT
-  std::pair<size_t, faiss::Index::idx_t*> gtParams = LoadGroundTruths(loadParams.first);
+  std::pair<size_t, faiss::Index::idx_t*> gtParams = LoadGroundTruths(loadQueriesParams.first);
 
   //AutoTuning(nq, gtParams);
 
