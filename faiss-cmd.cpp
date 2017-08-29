@@ -43,17 +43,28 @@ float * fvecs_read (const char *fname,
     return x;
 }
 
-
-const char *Load(size_t &d)
+///////////////////////////////////////////////////////////////////////////////////////
+faiss::Index * Load(size_t &d, const char *index_key)
 {
-  size_t nt;
-  float *xt = fvecs_read("sift1M/sift_learn.fvecs", &d, &nt);
+   //printf ("[%.3f s] Loading train set\n", elapsed() - t0);
 
-  const char *index_key;
-  faiss::index_factory(d, index_key);
+   size_t nt;
+   float *xt = fvecs_read("sift1M/sift_learn.fvecs", &d, &nt);
 
-  return index_key;
+  faiss::Index * index;
+  //printf ("[%.3f s] Preparing index \"%s\" d=%ld\n",
+  //        elapsed() - t0, index_key, d);
+  index = faiss::index_factory(d, index_key);
+
+  //printf ("[%.3f s] Training on %ld vectors\n", elapsed() - t0, nt);
+
+  index->train(nt, xt);
+  delete [] xt;
+
+  return index;
 }
+
+///////////////////////////////////////////////////////////////////////////////////////
 
 int main()
 {
@@ -64,7 +75,7 @@ int main()
 
   size_t d;
 
-  index_key = Load(d);
+  faiss::Index *index = Load(d, index_key);
 
   cerr << "Finished." << endl;
   return 0;
