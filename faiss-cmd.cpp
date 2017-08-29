@@ -89,7 +89,7 @@ void LoadDb(const size_t &d,faiss::Index *index)
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
-size_t LoadQueries(const size_t &d)
+std::pair<size_t, float *> LoadQueries(const size_t &d)
 {
   size_t nq;
   float *xq;
@@ -98,11 +98,11 @@ size_t LoadQueries(const size_t &d)
   xq = fvecs_read("sift1M/sift_query.fvecs", &d2, &nq);
   assert(d == d2 || !"query does not have same dimension as train set");
 
-  return nq;
+  return std::pair<size_t, float *>(nq, xq);
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
-size_t LoadGroundTruths(const size_t &nq)
+std::pair<size_t, faiss::Index::idx_t*> LoadGroundTruths(const size_t &nq)
 {
   size_t k; // nb of results per query in the GT
 
@@ -122,12 +122,16 @@ size_t LoadGroundTruths(const size_t &nq)
   }
   delete [] gt_int;
 
-  return k;
+  return std::pair<size_t, faiss::Index::idx_t*>(k, gt);
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
-void AutoTuning(const size_t &nq, const size_t &k)
+/*
+void AutoTuning(const size_t &nq, const std::pair<size_t, faiss::Index::idx_t*> &gtParams)
 {
+  const size_t &k = gtParams.first;
+  const faiss::Index::idx_t *gt = gtParams.second; 
+
   //printf ("[%.3f s] Preparing auto-tune criterion 1-recall at 1 "
   //        "criterion, with k=%ld nq=%ld\n", elapsed() - t0, k, nq);
 
@@ -163,7 +167,7 @@ void AutoTuning(const size_t &nq, const size_t &k)
           !"could not find good enough op point");
 
 }
-
+*/
 ///////////////////////////////////////////////////////////////////////////////////////
 
 int main()
@@ -178,12 +182,12 @@ int main()
   faiss::Index *index = LoadData(d, index_key);
   LoadDb(d, index);
   
-  size_t nq = LoadQueries(d);
+  std::pair<size_t, float *> loadParams = LoadQueries(d);
 
   size_t k; // nb of results per query in the GT
-  k = LoadGroundTruths(nq);
+  std::pair<size_t, faiss::Index::idx_t*> gtParams = LoadGroundTruths(loadParams.first);
 
-  AutoTuning(nq);
+  //AutoTuning(nq, gtParams);
 
   cerr << "Finished." << endl;
   return 0;
