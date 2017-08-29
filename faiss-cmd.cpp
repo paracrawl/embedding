@@ -43,6 +43,12 @@ float * fvecs_read (const char *fname,
     return x;
 }
 
+// not very clean, but works as long as sizeof(int) == sizeof(float)
+int *ivecs_read(const char *fname, size_t *d_out, size_t *n_out)
+{
+    return (int*)fvecs_read(fname, d_out, n_out);
+}
+
 ///////////////////////////////////////////////////////////////////////////////////////
 faiss::Index * LoadData(size_t &d, const char *index_key)
 {
@@ -65,7 +71,7 @@ faiss::Index * LoadData(size_t &d, const char *index_key)
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
-void LoadDb(size_t &d,faiss::Index *index)
+void LoadDb(const size_t &d,faiss::Index *index)
 {
   //printf ("[%.3f s] Loading database\n", elapsed() - t0);
 
@@ -83,7 +89,7 @@ void LoadDb(size_t &d,faiss::Index *index)
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
-void LoadQueries(size_t &d)
+size_t LoadQueries(const size_t &d)
 {
   size_t nq;
   float *xq;
@@ -91,8 +97,30 @@ void LoadQueries(size_t &d)
   size_t d2;
   xq = fvecs_read("sift1M/sift_query.fvecs", &d2, &nq);
   assert(d == d2 || !"query does not have same dimension as train set");
+
+  return nq;
 }
 
+///////////////////////////////////////////////////////////////////////////////////////
+void LoadGroundTruths(const size_t &nq)
+{
+  size_t k; // nb of results per query in the GT
+  faiss::Index::idx_t *gt;  // nq * k matrix of ground-truth nearest-neighbors
+
+  //printf ("[%.3f s] Loading ground truth for %ld queries\n",
+  //        elapsed() - t0, nq);
+
+  // load ground-truth and convert int to long
+  size_t nq2;
+  int *gt_int = ivecs_read("sift1M/sift_groundtruth.ivecs", &k, &nq2);
+  assert(nq2 == nq || !"incorrect nb of ground truth entries");
+
+  gt = new faiss::Index::idx_t[k * nq];
+  for(int i = 0; i < k * nq; i++) {
+      gt[i] = gt_int[i];
+  }
+  delete [] gt_int;
+}
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
@@ -108,7 +136,7 @@ int main()
   faiss::Index *index = LoadData(d, index_key);
   LoadDb(d, index);
   
-  LoadQueries(d);
+  size_t nq = LoadQueries(d);
 
   cerr << "Finished." << endl;
   return 0;
