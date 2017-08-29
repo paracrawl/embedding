@@ -2,7 +2,7 @@
 
 # Normalize script
 
-set -x
+#set -x
 
 moses_directory=/mt/mosesdecoder
 moses_lower_case_script="$moses_directory/scripts/tokenizer/lowercase.perl"
@@ -13,15 +13,19 @@ if [ ! -z ${MOSES_PROGRAM} ]; then
   moses_directory=$MOSES_PROGRAM
 fi
 
+if [ ! -d ${moses_directory} ];then
+   echo "Moses program not found"
+   exit 1
+fi
 
 if [ "$#" -ne 2 ];then
   echo "Usage: $0 nameOfInputFile nameOfOutputFile"
-  exit 1
+  exit 2
 fi
 
-if [ ! -f $file ]; then
+if [ ! -f $1 ]; then
   echo "Sorry, but we can't encounter the file!"
-  exit 2
+  exit 3
 fi
 
 name_of_input_file=$1
@@ -32,8 +36,3 @@ zcat ${name_of_input_file} | sort | ${moses_lower_case_script} | ${moses_tokeniz
 if [ $? -ne 0 ]; then
    echo "Something bad happened"
 fi
-
-
-moses_directory/
-
-
