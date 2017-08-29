@@ -127,7 +127,7 @@ std::pair<size_t, faiss::Index::idx_t*> LoadGroundTruths(const size_t &nq)
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-void AutoTuning(const size_t &nq, faiss::Index * index,
+std::string AutoTuning(const size_t &nq, faiss::Index * index,
                 const std::pair<size_t, faiss::Index::idx_t*> &gtParams,
                 const std::pair<size_t, float *> &loadQueriesParams)
 {
@@ -171,8 +171,48 @@ void AutoTuning(const size_t &nq, faiss::Index * index,
   assert (selected_params.size() >= 0 ||
           !"could not find good enough op point");
 
+  return selected_params;
 }
 
+/*
+void Search()
+{
+  faiss::ParameterSpace params;
+
+  //printf ("[%.3f s] Setting parameter configuration \"%s\" on index\n",
+  //        elapsed() - t0, selected_params.c_str());
+
+  params.set_index_parameters (index, selected_params.c_str());
+
+  //printf ("[%.3f s] Perform a search on %ld queries\n",
+  //        elapsed() - t0, nq);
+
+  // output buffers
+  faiss::Index::idx_t *I = new  faiss::Index::idx_t[nq * k];
+  float *D = new float[nq * k];
+
+  index->search(nq, xq, k, D, I);
+
+  //printf ("[%.3f s] Compute recalls\n", elapsed() - t0);
+
+  // evaluate result by hand.
+  int n_1 = 0, n_10 = 0, n_100 = 0;
+  for(int i = 0; i < nq; i++) {
+      int gt_nn = gt[i * k];
+      for(int j = 0; j < k; j++) {
+          if (I[i * k + j] == gt_nn) {
+              if(j < 1) n_1++;
+              if(j < 10) n_10++;
+              if(j < 100) n_100++;
+          }
+      }
+  }
+  printf("R@1 = %.4f\n", n_1 / float(nq));
+  printf("R@10 = %.4f\n", n_10 / float(nq));
+  printf("R@100 = %.4f\n", n_100 / float(nq));
+
+}
+*/
 ///////////////////////////////////////////////////////////////////////////////////////
 
 int main()
@@ -192,7 +232,7 @@ int main()
   size_t k; // nb of results per query in the GT
   std::pair<size_t, faiss::Index::idx_t*> gtParams = LoadGroundTruths(loadQueriesParams.first);
 
-  //AutoTuning(nq, gtParams);
+  std::string selected_params = AutoTuning(loadQueriesParams.first, index, gtParams, loadQueriesParams);
 
   cerr << "Finished." << endl;
   return 0;
