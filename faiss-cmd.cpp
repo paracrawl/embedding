@@ -65,7 +65,6 @@ faiss::Index * LoadData(size_t &d, const char *index_key)
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
-
 void LoadDb(size_t &d,faiss::Index *index)
 {
   //printf ("[%.3f s] Loading database\n", elapsed() - t0);
@@ -84,6 +83,18 @@ void LoadDb(size_t &d,faiss::Index *index)
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
+void LoadQueries(size_t &d)
+{
+  size_t nq;
+  float *xq;
+
+  size_t d2;
+  xq = fvecs_read("sift1M/sift_query.fvecs", &d2, &nq);
+  assert(d == d2 || !"query does not have same dimension as train set");
+}
+
+
+///////////////////////////////////////////////////////////////////////////////////////
 
 int main()
 {
@@ -96,6 +107,8 @@ int main()
 
   faiss::Index *index = LoadData(d, index_key);
   LoadDb(d, index);
+  
+  LoadQueries(d);
 
   cerr << "Finished." << endl;
   return 0;
