@@ -1,38 +1,53 @@
 #!/bin/bash
 
 # Normalize script
-
 #set -x
+function usage {
+    echo "usage: $0 <filename> <source> <target> <min> <max> <output>\n"
+    echo "example: $0 eparl7.fr-es-en en es 1 50 output.txt"
+    exit 1
+}
 
-moses_directory=/mt/mosesdecoder
-moses_lower_case_script="$moses_directory/scripts/tokenizer/lowercase.perl"
-moses_tokenizer_script="$moses_directory/scripts/tokenizer/tokenizer.perl"
-moses_clean_cupos="$moses_directory"
+MOSES_PATH=/mt/mosesdecoder
+MOSES_LOWER_SCRIPT="$MOSES_PATH/scripts/tokenizer/lowercase.perl"
+MOSES_TOKENIZER_SCRIPT="$MOSES_PATH/scripts/tokenizer/tokenizer.perl"
+MOSES_CLEAN_CURPOS_SCRIPT="$MOSES_PATH/scripts/training/clean-corpus-n.perl"
 
 if [ ! -z ${MOSES_PROGRAM} ]; then
-  moses_directory=$MOSES_PROGRAM
+  MOSES_PATH=$MOSES_PROGRAM
 fi
 
-if [ ! -d ${moses_directory} ];then
-   echo "Moses program not found"
-   exit 1
+if [ ! -d ${MOSES_PATH} ];then
+   echo "Please set your MOSES_PROGRAM environment variable first!"
+   exit
 fi
 
-if [ "$#" -ne 2 ];then
-  echo "Usage: $0 nameOfInputFile nameOfOutputFile"
-  exit 2
+if [ "$#" -ne 6 ];then
+   usage
 fi
 
-if [ ! -f $1 ]; then
-  echo "Sorry, but we can't encounter the file!"
+if [ ! -f "$1.$2.gz" ]; then
+  echo "Sorry, but we can't encounter the file: $1.$2.gz"
   exit 3
 fi
 
 name_of_input_file=$1
-name_of_output_file=$2
+name_of_source_language=$2
+name_of_target_language=$3
+min=$4
+max=$5
+name_of_output_file=$6
 
-zcat ${name_of_input_file} | sort | ${moses_lower_case_script} | ${moses_tokenizer_script} > ${name_of_output_file}.$3 $3 
- 
+cmd=$(zcat ${name_of_input_file}.${name_of_target_language}.gz  \ |
+   sort | \
+   ${MOSES_LOWER_SCRIPT} | \
+   ${MOSES_TOKENIZER_SCRIPT} | \
+   ${MOSES_CLEAN_CURPOS_SCRIPT} ${name_of_source_language} ${name_of_target_language} ${min} ${max} ${name_of_output_file})
+
+echo $cmd
+
 if [ $? -ne 0 ]; then
    echo "Something bad happened"
 fi
+
+
