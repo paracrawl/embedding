@@ -20,13 +20,12 @@ then
   exit 1
 fi
 
-
 # create the named pipe/fifo
 `mkfifo $FIFO_NAME`
 
 # downloads the specified file from the blob storage and sends it into the fifo
 az storage blob download --container-name $CONTAINER_NAME --name $FILE_NAME_ON_BSTORAGE --file $FIFO_NAME --output table --account-name $ACCOUNT_NAME > /dev/null &
 
-# displays the content from the fifo and deletes it at the end
-cat < $FIFO_NAME && rm $FIFO_NAME
 
+# displays the content from the fifo and deletes it at the end
+cat | xz -d < $FIFO_NAME && rm $FIFO_NAME
