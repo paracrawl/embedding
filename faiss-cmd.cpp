@@ -234,19 +234,26 @@ int main()
 
   size_t d;
 
+  cerr << "LoadData..." << endl;
   faiss::Index *index = LoadData(d, index_key);
+
+  cerr << "LoadDb..." << endl;
   LoadDb(d, index);
   
+  cerr << "LoadQueries..." << endl;
   std::pair<size_t, float *> loadQueriesParams = LoadQueries(d);
 
-  size_t k; // nb of results per query in the GT
+  cerr << "LoadGroundTruths..." << endl;
   std::pair<size_t, faiss::Index::idx_t*> gtParams = LoadGroundTruths(loadQueriesParams.first);
 
+  cerr << "AutoTuning..." << endl;
   std::string selected_params = AutoTuning(index, gtParams, loadQueriesParams);
 
+  cerr << "Search..." << endl;
   Search(index, gtParams, loadQueriesParams, selected_params);
 
    // delete
+  cerr << "delete..." << endl;
   const faiss::Index::idx_t *gt = gtParams.second; 
   float *xq = loadQueriesParams.second;
 
