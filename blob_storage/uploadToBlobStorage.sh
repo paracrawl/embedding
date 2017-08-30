@@ -24,7 +24,6 @@ then
 fi
 
 
-
 # create the named pipe/fifo
 `mkfifo $FIFO_NAME`
 echo "Named pipe created."
