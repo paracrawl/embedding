@@ -88,8 +88,7 @@ def _main(a):
     _logger.info('saving search results')
     with open(a.output, 'wb') as out:
         for i, r in enumerate(res):
-            out.write('{}\t{}'.format(i, r))
-            out.write('\n')
+            out.write('{}\t{}\n'.format(i, r))
 
 
 if '__main__' == __name__:
