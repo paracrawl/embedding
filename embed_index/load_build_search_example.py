@@ -1,6 +1,9 @@
 #!/usr/bin/env python2
 # encoding=utf-8
-
+# must set paths:
+#  export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/home/hieuhoang/intel/compilers_and_libraries_2017.4.196/linux/mkl/lib/intel64_lin
+#  export PYTHONPATH=$PYTHONPATH:/home/hieuhoang/workspace/github/faiss
+    
 from __future__ import print_function
 
 import argparse
