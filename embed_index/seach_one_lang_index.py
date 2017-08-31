@@ -88,7 +88,7 @@ def _main(a):
     _logger.info('saving search results')
     with open(a.output, 'wb') as out:
         for r in res:
-            out.write(str(res))
+            out.write(str(r))
             out.write('\n')
 
 
