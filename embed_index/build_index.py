@@ -61,6 +61,8 @@ def _build_index(embed_paths, use_gpu=True):
         _logger.info('adding embeddings to the index')
         index.add(t.numpy())
 
+        # del t ?
+
     return index
 
 
