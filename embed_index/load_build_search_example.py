@@ -59,9 +59,9 @@ def _main(a):
 
     print('Searching index...')
     sys.stdout.flush()
-    distances, indices = index.search(x=t[a.sent_index:a.sent_index + 1].numpy(), k=10)
+    distances, indices = index.search(x=t[a.sent_index:a.sent_index + 1].numpy(), k=a.k)
 
-    print('Searched for: "{}"'.format(sent[a.sent_index]))
+    print('Searched for: "{}"'.format(sent[a.sent_index].encode('string-escape')))
     print('Nearest neighbors (distance \\t index \\t sentence):')
     for d, i in itertools.izip(distances[0], indices[0]):
         j = i + a.offset
