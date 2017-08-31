@@ -81,7 +81,7 @@ def _main(a):
         _, indices = index.search(x=t.numpy(), k=1)
 
         _logger.info('saving nearest neighbors')
-        res.extend(i[0][0] for i in indices)
+        res.extend(i[0] for i in indices)
 
         del t
 
