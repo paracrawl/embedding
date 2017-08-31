@@ -77,7 +77,7 @@ def _main(a):
         _logger.info('loading embeddings from %s', path)
         t = torch.utils.serialization.load_lua(path)
 
-        _logger.info('searching index for embeddings', path)
+        _logger.info('searching index for embeddings')
         _, indices = index.search(x=t.numpy(), k=1)
 
         _logger.info('saving nearest neighbors')
