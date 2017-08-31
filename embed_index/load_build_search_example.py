@@ -45,6 +45,8 @@ def _open(path, mode):
 
 
 def _main(a):
+    print('Loading embeddings...')
+    sys.stdout.flush()
     t = torch.utils.serialization.load_lua(a.embeddings)
 
     print('Loading sentences...')
