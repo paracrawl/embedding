@@ -20,4 +20,6 @@ do
 	finalurl=$urlhead$name$urltail
         echo "File to download: $finalurl"
 	sh uploadToBlobStorage $finalurl $language$name
+	# without sleep, microsoft blocks our requests due to high demand
+        sleep 2m
 done
