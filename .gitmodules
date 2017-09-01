@@ -1,0 +1,6 @@
+[submodule "index/faiss"]
+	path = index/faiss
+	url = https://github.com/facebookresearch/faiss.git
+[submodule "preprocess/kpu"]
+	path = preprocess/kpu
+	url = https://github.com/kpu/preprocess.git
