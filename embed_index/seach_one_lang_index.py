@@ -34,6 +34,11 @@ def _parse_options():
         '-o', '--output',
         required=True,
         help='where to put results (nearest neighbor index in index)', )
+    p.add_argument(
+        '-k', '--nighbors',
+        type=int,
+        default=5,
+        help='number of nearest neighbors to search for', )
     return p.parse_args()
 
 
@@ -78,17 +83,17 @@ def _main(a):
         t = torch.utils.serialization.load_lua(path)
 
         _logger.info('searching index for embeddings')
-        _, indices = index.search(x=t.numpy(), k=1)
+        _, indices = index.search(x=t.numpy(), k=a.nighbors)
 
         _logger.info('saving nearest neighbors')
-        res.extend(i[0] for i in indices)
+        res.extend(i for i in indices)
 
         del t
 
     _logger.info('saving search results')
     with open(a.output, 'wb') as out:
         for i, r in enumerate(res):
-            out.write('{}\t{}\n'.format(i, r))
+            out.write('{}\t{}\n'.format(i, '\t'.join(str(x) for x in r)))
 
 
 if '__main__' == __name__:
