@@ -7,13 +7,9 @@ import sys
 import torch.utils.serialization
 import os
 import logging
+import coloredlogs
 
 _logger = logging.getLogger(__name__)
-
-
-def _init_log():
-    fmt = '%(asctime)s | %(name)-20s | %(levelname).1s | %(message)s'
-    logging.basicConfig(fmt=fmt, datefmt='%Y-%m-%d %H:%M:%S', level=logging.INFO)
 
 
 def _parse_options():
@@ -82,6 +78,9 @@ def _main(a):
         _logger.info('loading embeddings from %s', path)
         t = torch.utils.serialization.load_lua(path)
 
+        _logger.info('renormalizing embeddings')
+        faiss.normalize_L2(t.numpy())
+
         _logger.info('searching index for embeddings')
         _, indices = index.search(x=t.numpy(), k=a.nighbors)
 
@@ -97,6 +96,9 @@ def _main(a):
 
 
 if '__main__' == __name__:
-    _init_log()
+    coloredlogs.install(
+        fmt='%(asctime)s | %(name)-20s | %(levelname).1s | %(message)s',
+        datefmt='%Y-%m-%d %H:%M:%S',
+        level=logging.INFO)
     a = _parse_options()
     sys.exit(_main(a) or 0)
