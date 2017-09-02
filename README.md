@@ -28,11 +28,11 @@ zcat {embeddings_file}.gz | ./bin/build_index -o {output_folder} -s {index_size}
 
 ## querying index
 
-Loads index from `index_file` and searches for `k` nearest vectors for each input vector. The search performed on an index is the k-nearest-neighbor search.
+Loads index from `index_file` and searches for `k` nearest vectors for each input vector. The search performed on an index is the k-nearest-neighbor search. `-b` sets the batch size, i.e. the number of vectors queried at the same time.
 ```bash
 cd index
 mkdir -p build && cd build
 cmake .. && make -j 5
 
-zcat {embeddings_file}.gz | ./bin/query_index -i {index_file} -k {k-best} > {output_file}
+zcat {embeddings_file}.gz | ./bin/query_index -i {index_file} -k {k-best} -b {batch_size} > {output_file}
 ```
