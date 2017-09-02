@@ -1,8 +1,11 @@
 **Framework** PyTorch
+
 **Optimizer** ADAM, initial learning rate 0.01, decreases by 10% whenever perplexity does not imrpove
+
 **Loss function** MSELoss
 
 **Pipeline**
+
 [Sentence]  -> Lang-specific-BLSTM -> MaxPool     -> Lang-specific-Decoder -> [Sentence]
 <96×50×394> -> <96×50×1024> -> <96×1×1024> -> <96×50×384>
 
